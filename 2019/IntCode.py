@@ -40,7 +40,7 @@ class IntCode:
 
 	def ICOut(self, modes): 
 		out = self.mem[self.pos+1] if modes[-1] else self.mem[self.mem[self.pos+1]] #output
-		self.extOut(("At " + str(self.pos) + " output: " + str(out)))
+		self.extOut(out)
 		self.pos += 2
 
 	def ICJit(self, modes):
@@ -75,7 +75,7 @@ class IntCode:
 	def writeIntCode(self):
 		print(",".join(map(str,self.mem)))
 
-	def step(self): 
+	def step(self, haltOnOutput): 
 		codestr = str(self.mem[self.pos])
 		opcode = int(codestr[-2:])
 
@@ -95,10 +95,13 @@ class IntCode:
 		self.opCodes[opcode][1](modes) # call the appropriate operation with list of modes
 		# self.pos += self.opCodes[opcode][2] # increment the pointer code-dependently
 
+		if haltOnOutput and opcode == 4: #nasty magic number for output
+			return False
+
 		return True
 
-	def run(self):
-		while self.step():
+	def run(self, haltOnOutput = False):
+		while self.step(haltOnOutput):
 			pass
 		return self
 
